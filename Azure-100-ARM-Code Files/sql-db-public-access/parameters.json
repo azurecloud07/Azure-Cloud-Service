@@ -1,0 +1,208 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "collation": {
+            "value": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        "databaseName": {
+            "value": "croma"
+        },
+        "tier": {
+            "value": "GeneralPurpose"
+        },
+        "skuName": {
+            "value": "GP_Gen5_2"
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "maxSizeBytes": {
+            "value": 10737418240
+        },
+        "sampleName": {
+            "value": ""
+        },
+        "serverName": {
+            "value": "sqlcroma"
+        },
+        "licenseType": {
+            "value": "LicenseIncluded"
+        },
+        "readScaleOut": {
+            "value": "Disabled"
+        },
+        "zoneRedundant": {
+            "value": false
+        },
+        "numberOfReplicas": {
+            "value": 0
+        },
+        "enableADS": {
+            "value": true
+        },
+        "allowAzureIps": {
+            "value": true
+        },
+        "allowClientIp": {
+            "value": true
+        },
+        "clientIpValue": {
+            "value": "136.226.251.14"
+        },
+        "databaseTags": {
+            "value": {
+                "SWON": "1046592",
+                "Project": "Omnistore",
+                "Contact": "sawan.chouksey@tcs.com",
+                "Component": "SQL database",
+                "Environment": "croma"
+            }
+        },
+        "serverTags": {
+            "value": {
+                "SWON": "1046592",
+                "Project": "Omnistore",
+                "Contact": "sawan.chouksey@tcs.com",
+                "Component": "SQL database",
+                "Environment": "croma"
+            }
+        },
+        "enableVA": {
+            "value": true
+        },
+        "enableSqlLedger": {
+            "value": false
+        },
+        "enableDigestStorage": {
+            "value": "Disabled"
+        },
+        "digestStorageOption": {
+            "value": ""
+        },
+        "digestStorageName": {
+            "value": ""
+        },
+        "blobStorageContainerName": {
+            "value": ""
+        },
+        "retentionDays": {
+            "value": ""
+        },
+        "retentionPolicy": {
+            "value": false
+        },
+        "digestAccountResourceGroup": {
+            "value": ""
+        },
+        "isNewDigestLocation": {
+            "value": false
+        },
+        "digestRegion": {
+            "value": ""
+        },
+        "storageAccountdigestRegion": {
+            "value": ""
+        },
+        "sqlLedgerTemplateLink": {
+            "value": "https://sqlazureextension.hosting.portal.azure.net/sqlazureextension/Content/2.1.01881213/DeploymentTemplates/SqlLedger.json"
+        },
+        "useVAManagedIdentity": {
+            "value": false
+        },
+        "enablePrivateEndpoint": {
+            "value": false
+        },
+        "privateEndpointNestedTemplateId": {
+            "value": "pe-be8b222a-d31b-4779-8b92-d0718d783013"
+        },
+        "privateEndpointSubscriptionId": {
+            "value": ""
+        },
+        "privateEndpointResourceGroup": {
+            "value": ""
+        },
+        "privateEndpointName": {
+            "value": ""
+        },
+        "privateEndpointLocation": {
+            "value": ""
+        },
+        "privateEndpointSubnetId": {
+            "value": ""
+        },
+        "privateLinkServiceName": {
+            "value": ""
+        },
+        "privateLinkServiceServiceId": {
+            "value": ""
+        },
+        "privateEndpointVnetSubscriptionId": {
+            "value": ""
+        },
+        "privateEndpointVnetResourceGroup": {
+            "value": ""
+        },
+        "privateEndpointVnetName": {
+            "value": ""
+        },
+        "privateEndpointSubnetName": {
+            "value": ""
+        },
+        "enablePrivateDnsZone": {
+            "value": true
+        },
+        "privateLinkPrivateDnsZoneFQDN": {
+            "value": "privatelink.database.windows.net"
+        },
+        "privateEndpointDnsRecordUniqueId": {
+            "value": "be8b222a-d31b-4779-8b92-d0718d783016"
+        },
+        "privateEndpointTemplateLink": {
+            "value": "https://sqlazureextension.hosting.portal.azure.net/sqlazureextension/Content/2.1.01881213/DeploymentTemplates/PrivateEndpoint.json"
+        },
+        "privateDnsForPrivateEndpointTemplateLink": {
+            "value": "https://sqlazureextension.hosting.portal.azure.net/sqlazureextension/Content/2.1.01881213/DeploymentTemplates/PrivateDnsForPrivateEndpoint.json"
+        },
+        "privateDnsForPrivateEndpointNicTemplateLink": {
+            "value": "https://sqlazureextension.hosting.portal.azure.net/sqlazureextension/Content/2.1.01881213/DeploymentTemplates/PrivateDnsForPrivateEndpointNic.json"
+        },
+        "privateDnsForPrivateEndpointIpConfigTemplateLink": {
+            "value": "https://sqlazureextension.hosting.portal.azure.net/sqlazureextension/Content/2.1.01881213/DeploymentTemplates/PrivateDnsForPrivateEndpointIpConfig.json"
+        },
+        "clientIpRuleName": {
+            "value": "ClientIp-2022-3-4_12-26-20"
+        },
+        "minimalTlsVersion": {
+            "value": "1.2"
+        },
+        "connectionType": {
+            "value": "Default"
+        },
+        "requestedBackupStorageRedundancy": {
+            "value": "Geo"
+        },
+        "maintenanceConfigurationId": {
+            "value": "/subscriptions/d2e44caa-1265-4fc3-bdaf-dc76a0a5d08e/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default"
+        },
+        "administratorLogin": {
+            "value": "croma"
+        },
+        "administratorLoginPassword": {
+            "value": null
+        },
+        "identity": {
+            "value": {
+                "type": "None"
+            }
+        },
+        "primaryUserAssignedIdentityId": {
+            "value": ""
+        },
+        "servicePrincipal": {
+            "value": {
+                "type": "None"
+            }
+        }
+    }
+}

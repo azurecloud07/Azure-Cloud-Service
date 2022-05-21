@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "omnicore.fullname" . }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8120
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "omnicore.selectorLabels" . | nindent 4 }}

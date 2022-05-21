@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "omnicore.fullname" . }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "omnicore.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "omnicore.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8120
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /os-coredata/manage/health
+              port: 8120
+            initialDelaySeconds: 600
+            failureThreshold: 5
+            periodSeconds: 3600
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 50
+            httpGet:
+              host:
+              scheme: HTTP
+              path: /os-coredata/manage/health
+              port: 8120
+          env:
+          - name: DB_HOST
+            value: "omnicore.mysql.database.azure.com"
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: "omnistore_core"
+          - name: DB_USER_NAME
+            value: "omniadmin@omnicore"
+          - name: DB_USER_PASS
+            value: "omnipass_123"
+          - name: REDIS_PASS
+            value: "BUbTqgQE7wTjDT5nrKeVolLdnppZr9Nm6P4wsgnaRos="
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      
+      

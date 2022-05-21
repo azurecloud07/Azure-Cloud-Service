@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "rgName": {
+            "value": "blue-green-poc"
+        },
+        "rgLocation": {
+            "value": "eastus"
+        },
+        "tags": {
+            "value": {
+                "SWON": "1046592",
+                "Project": "Omnistore",
+                "Contact": "sawan.chouksey@tcs.com",
+                "Environment": "blue-green-poc",
+                "Component": "ResourceGroup"
+            }
+        }
+    }
+}

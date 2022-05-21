@@ -1,0 +1,73 @@
+name: ClusterInfraDeploy
+
+
+trigger:
+- master
+
+variables:
+  azureServiceConnection: 'OMNISTORE_DEVOPS'
+  devresourceGroupName: 'dev-Omnistore'
+  qaresourceGroupName: 'qa-Omnistore'
+  location: 'eastus'
+  
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - task: AzureCLI@2  
+      displayName: 'build bicep artifact' 
+      inputs: 
+        azureSubscription: $(azureServiceConnection) 
+        scriptType: 'pscore'  
+        scriptLocation: 'inlineScript'  
+        inlineScript: 'az bicep build --file aks/main.bicep' 
+
+- stage: dev-deploy
+  jobs:
+  - job: dev-deployment
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Include templates in the artifact'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)/aks'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+        OverWrite: true
+
+    - task: AzureCLI@2
+      displayName: 'deploy bicep template'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az --version
+          az group create --name $(devresourceGroupName) --location $(location)
+          az deployment group create -p $(Build.ArtifactStagingDirectory)/parameter_dev.json --resource-group $(devresourceGroupName) --template-file $(Build.ArtifactStagingDirectory)/main.bicep
+
+- stage: qa-deploy
+  jobs:
+  - job: qa-deployment
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Include templates in the artifact'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)/aks'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+        OverWrite: true
+
+    - task: AzureCLI@2
+      displayName: 'deploy bicep template'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az --version
+          az group create --name $(qaresourceGroupName) --location $(location)
+          az deployment group create -p $(Build.ArtifactStagingDirectory)/parameter_dev.json --resource-group $(qaresourceGroupName) --template-file $(Build.ArtifactStagingDirectory)/main.bicep
