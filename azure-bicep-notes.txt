@@ -1,0 +1,142 @@
+#convert .bicep file into .json
+bicep build <filename.bicep>
+
+#specifies the name and location of the file to create
+az bicep build --file main.bicep --outfile c:\jsontemplates\azuredeploy.json
+
+#saves main.json to a different directory.
+az bicep build --file main.bicep --outdir c:\jsontemplates
+
+#The decompile command converts ARM template JSON to a Bicep file
+az bicep decompile --file main.json
+
+#install bicep within Az
+az bicep install
+------------------------------------------------------------------------------------------------
+#manually setup bicep in azure cli in windows
+1. download bicep from below mentioned
+https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#install-manually
+https://github.com/Azure/bicep/releases/latest/download/bicep-setup-win-x64.exe
+
+2. install the installer 
+3. copy the bicep.exe file from the below path replace user with your current user 
+   C:\Users\1820387(username)\AppData\Local\Programs\Bicep CLI
+
+4. Paste the bicep.exe file in the below location as your azure
+C:\Users\1820387\.azure\bin
+
+5. Now you can user bicep cli with az also without internet
+-------------------------------------------------------------------------------------------------
+#install bicep with version within Az
+az bicep install --version v0.3.255
+
+#list all avaibale version of bicep
+az bicep list-versions
+
+#az bicep upgrade
+az bicep upgrade
+ 
+#To publish a module to a registry, use:
+az bicep publish --file <bicep-file> --target br:<registry-name>.azurecr.io/<module-path>:<tag>
+az bicep publish --file storage.bicep --target br:exampleregistry.azurecr.io/bicep/modules/storage:v1
+
+#To manually restore the external modules for a file, use:
+#only works with bicep cli not with azure cli
+bicep restore <bicep-file>
+
+#create resource group in bicep 
+az deploy sub create -l eastus --file file.bicep
+
+#preview changes before executing bicep code and see how many resources going to create
+#it will tell you the state of file what resources needs to be updated(+ create) and what not changing(= nochange) 
+az deployment group create -g <resource_group_name> -f <filename.bicep> --confirm-with-what-if
+az deployment group create -g poc-bicep -f filename.bicep -c
+
+#output is used to return value to bicep file
+output value string = appinsisght.properties.instrumentaionkey
+
+#use output in another file
+parameter_name : moduleObjectName.output.value
+
+#create parameter file according to different Env instead of specifiying in bicep file and pass it in command
+az deployment group create -g <resource_group_name> -f <bicep_file_name> -p <parameter_file_name>
+az deployment group create -g poc-bicep -f main.bicep -p dev.parameters.json
+az deployment group create -g poc-bicep -f main.bicep -p prod.parameters.json
+az deployment group create -g poc-bicep -f main.bicep -p uat.parameters.json
+az deployment group create -g poc-bicep -f main.bicep -p sit.parameters.json
+
+#get password value from key-value by secret in parameter.json file
+"password":{
+	"reference":{
+	"keyVault":{
+	   "id": "/subscription/<subscription-id>/resourceGroups/<resource_group_name>/providers/Microsoft.keyVault/vaults/<key-vaults-name>"
+	},
+	"secretName": "<secret-name>"
+  }
+}
+
+#put condition and restricton in parameter by @decorators
+#decorators always placed above the selected parameter only 
+@allowed([
+  'westeurope'
+  'northeurope'
+])
+param location string = 'westeurope'
+
+#output resource properties by calling resource object 
+output <output_resource_name> string = <resource_defined_name>.<object>.<object>.blob
+output stgout string=stg.properties.primaryEndpoints.blob
+
+#create or generate custom template of resources
+res-<resource_name> 
+res-aks-cluster 
+
+#if you want to deploy multiple resource group in same bicep you need to chnage target scope to subscription
+#by default target scope is resource group
+targetScope= 'subscription'
+
+#define custom configuration for code practise
+create file bicepconfig.json
+{
+  "analyzers": {
+    "core": {
+      "verbose": true,
+      "enabled": true,
+      "rules": {
+        "no-hardcoded-env-urls": {
+          "level": "warning"
+        },
+        "no-unused-params":{
+          "level": "warning"
+        },
+        "no-unused-vars":{
+          "level": "warning"
+        },
+        "prefer-interpolation":{
+          "level": "warning"
+        },
+        "secure-parameter-default":{
+          "level": "warning"
+        }
+        
+      }
+    }
+  }
+}
+
+#use condition in resources we use "if"
+#use recursively create resources we use "for"
+#use existing resource we use "existing"
+
+#calling sub module or other bicep file by main file using module
+module <module_name.bicep>{
+//scope = <resource_group_object>
+scope = 'rg'    //scope of resource
+name = 'vnet'  //module name
+params:{
+vnetname : '<vnet_name>
+location : '<location>
+}
+}
+
+

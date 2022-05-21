@@ -1,0 +1,2234 @@
+#domain name for public ip
+http://frontend.${public_ip}.nip.io/
+http://frontend.52-150-19-70.nip.io/
+
+#subnet calculator
+https://www.site24x7.com/tools/ipv4-subnetcalculator.html
+
+#run java application in azure batch account
+https://linuxtut.com/run-java-application-in-azure-batch-47daa/
+
+#kubectl fetch pod name by command
+kubectl get pod|grep omnicore | awk '{print $1}'
+
+#mount to another storage account directly from the Azure Cloud Shell
+clouddrive mount -s mySubscription -g myRG -n storageAccountName -f fileShareName
+
+#Limiting pod communication with network policies in kubernates
+https://docs.giantswarm.io/getting-started/network-policies/
+---------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: simple-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: target-app-who-is-applied-the-policy
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+    - namespaceSelector:
+        matchLabels:
+          name: namespace-that-can-talk-to-my-app
+    - podSelector:
+        matchLabels:
+          app: pod-that-can-talk-to-my-app
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    - namespaceSelector:
+        matchLabels:
+          name: namespace-my-app-can-talk-to
+    - podSelector:
+        matchLabels:
+          app: pod-my-app-can-talk-to
+    ports:
+    - protocol: TCP
+      port: 5978
+--------------------------------------------------------------------------	  
+#Allowing specific system pod to talk with your pod
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: ksm-can-be-accessed-by-my-app
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: kube-state-metrics
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: my-app-that-needs-access-to-ksm
+      ports:
+        - protocol: TCP
+          port: 10301
+--------------------------------------------------------------------------
+
+
+#given access to other user in resources assigned a role
+User Access Administrator Role
+
+#find public ip with URL
+https://www.iplocation.net/find-ip-address
+
+#Azure Database for PostgreSQL backup with long-term retention
+https://docs.microsoft.com/en-us/azure/backup/backup-azure-database-postgresql
+
+#check podIP in kubernates 
+POD_NAME=omnistore-ui-services-59ffdff65b-4d8zk
+PodHost=$(kubectl get pod $POD_NAME --template={{.status.podIP}})
+echo $PodHost
+
+#list all resources in namespace in k8s
+kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -nl -n <namespace>
+
+#install azure cli in centos
+--Import the Microsoft repository key.
+sudo rpm --import http://packages.microsoft.com/keys/microsoft.asc
+
+--Create local azure-cli repository information.
+echo -e "[azure-cli]
+name=Azure CLI
+baseurl=http://packages.microsoft.com/yumrepos/azure-cli
+enabled=1
+gpgcheck=1
+gpgkey=http://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/azure-cli.repo
+
+--install with or w/o gpgkey
+yum install azure-cli --nogpgkey
+
+#Add the following to the install.ps1 file in powershell to enable web server with default html file
+File install.ps1 in VM
+
+Add-WindowsFeature Web-Server
+Set-Content -Path "C:\inetpub\wwwroot\Default.html" -Value "This is the server $($env:computername) !"
+
+#Execute the following commands for custom script extensions by install install.ps1 by storage account`
+$config = @{
+  "fileUris" = (,"http://webstorelog1000.blob.core.windows.net/script/install.ps1");
+  "commandToExecute" = "powershell -ExecutionPolicy Unrestricted -File install.ps1"
+}
+$set = Get-AzVmss -ResourceGroupName "test-grp" -VMScaleSetName "demoscaleset"
+$set = Add-AzVmssExtension -VirtualMachineScaleSet $set -Name "customScript" -Publisher "Microsoft.Compute" -Type "CustomScriptExtension" -TypeHandlerVersion 1.9 -Setting $config
+Update-AzVmss -ResourceGroupName "test-grp" -Name "demoscaleset" -VirtualMachineScaleSet $set
+
+#Enable multiple RDP session for Windows 
+1. Log into the server, where the Remote Desktop Services are installed.
+2. Open the start screen (press the Windows key) and type gpedit.msc and open it.
+3. Go to Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Connections.
+4. Set Restrict Remote Desktop Services user to a single Remote Desktop Services session to Disabled.
+5. Double click Limit number of connections and set the RD Maximum Connections allowed to 999999.
+
+#Disable Multiple RDP Sessions
+1. Log into the server, where the Remote Desktop Services are installed.
+2. Open the start screen (press the Windows key) and type gpedit.msc and open it.
+3. Go to Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Connections.
+4. Set Restrict Remote Desktop Services user to a single Remote Desktop Services session to Enabled.
+
+#for opening chrome in Multiple RDP session by cmd
+chrome.exe --user-data-dir="C:\temp\osdemouser"
+cd C:\Program Files\Google\Chrome\Application
+chrome.exe --user-data-dir=%LOCALAPPDATA%\Google\Chrome\sawan
+
+#deploy Azure conatiner instance by Yaml file
+az container create --resource-group container-grp --file appdeployment.yml
+---------------------------
+appdeployment.yml
+---------------------------
+apiVersion: 2019-12-01
+location: northeurope
+name: AppGroup
+properties:
+  containers: 
+  - name: app
+    properties:
+      image: appregistry10002313.azurecr.io/myapp:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+      ports:
+      - port: 80   
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: 80    
+  imageRegistryCredentials:
+    - server: appregistry10002313.azurecr.io
+      username: appregistry10002313
+      password: RGhhcWieDFffTCZ2DPYe=QEDqKr4NGbI
+type: Microsoft.ContainerInstance/containerGroups
+
+#install azure cli in linux
+The following commands can be used as a reference to the previous chapter
+1. Install the Azure command line interface
+curl -sL http://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
+
+2. Setup the repository
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] http://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+
+3. Update the package index
+sudo apt-get update
+
+4. Install the Azure command line interface
+sudo apt-get install azure-cli
+
+5. Login into Azure
+sudo az login
+
+#install docker in ubuntu
+http://docs.docker.com/engine/install/ubuntu/
+-Update the package index
+sudo apt-get update
+
+-Install packages to allow apt to use the repository over HTTPS
+sudo apt-get install ca-certificates curl gnupg lsb-release
+
+-Add Docker's official GPG key
+curl -fsSL http://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+-Setup a stable repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] http://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+-Update the package index
+sudo apt-get update
+
+-Install docker, containerd
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+-Launching a container
+sudo docker run --name mynginx -p 80:80 -d nginx
+
+#creating specislized VM image for backup to create another VM with same image include data 
+1. go to the VM overview table
+2. select Capture option
+3. Create compute image gallery 
+4. select image name/version/ and image type specialized(with Vm all information with data)
+   or 
+4. select image name/version/ and image type generalised(w/o vm name,user data etc. only with data)
+5. next and start deployment
+
+#creating VM from existing custom specialized/generalised VM image
+1. select image from azure compute gallery
+2. create VM or VMSS option in overview
+3. configure all setting and create VM
+4. if datadisk exist for old vm it will attched already
+5. It will assign new public IP or network to VM
+
+#nsg rule setup for AzureBastionSubnet
+http://francescomolfese.it/en/2020/06/come-configurare-il-servizio-azure-bastion-per-accedere-in-modo-sicuro-alle-macchine-virtuali/#:~:text=The%20Network%20Security%20Group%20(NSG,must%20include%20the%20following%20rules.&text=Inbound%20traffic%20from%20Internet%3A%20Azure,the%20Azure%20Bastion%20control%20plane.
+------Inbound-rule--------------------------
+priority     Name                       port    protocol    source   	  destination   	Action
+1000		Allow-TCP443-FromInternet	443		TCP			Internet		any				allow
+1001		Allow-TCP443-FromGtwayMgr	443		TCP			GatewayManager	any				allow
+
+------Outbound-rule-------------------------
+1000		Allow-TCP3389_22-toVnet		3389,22	TCP			any				VirtualNetwork	allow
+1001		Allow-TCP443-toAzureCloud	443		TCP			any 			AzureCloud		allow
+
+#setup kali gui in azure VM
+http://cloudyhappypeople.com/2018/12/23/setting-up-a-kali-linux-machine-in-azure/
+
+#enable GUI in linux vm
+http://docs.microsoft.com/en-us/azure/virtual-machines/linux/use-remote-desktop
+sudo apt-get update
+sudo apt-get -y install xfce4
+sudo apt install xfce4-session
+
+sudo apt-get -y install xrdp
+sudo systemctl enable xrdp
+echo xfce4-session >~/.xsession
+sudo service xrdp restart
+
+#azure-cli
+az vm open-port --resource-group myResourceGroup --name myVM --port 3389
+
+#DNS configuration patterns for Azure Database for PostgreSQL – Flexible Server
+http://azureaggregator.wordpress.com/2021/07/23/dns-configuration-patterns-for-azure-database-for-postgresql-flexible-server/
+
+#find azure cloud shell public ip
+dig +short myip.opendns.com @resolver1.opendns.com
+host myip.opendns.com resolver1.opendns.com | grep "myip.opendns.com has" | awk '{print $4}'
+wget -qO- http://ipecho.net/plain | xargs echo
+wget -qO - icanhazip.com
+curl ifconfig.co
+
+#Cognitive services in azure for AI and ML
+1. Decision
+  a.Content Moderator
+    Check text, images or videos for offensive or undesirable content
+
+2. LANGUAGE
+  a.Language Understanding (LUIS)
+    Extract meaning from natural language
+  b.Language
+    Detect sentiment, key phrases, entities and human language type in text
+  c.Translator
+    Translate text in near real-time
+
+3. Speech
+  a.Speech-to-text
+    Enable real-time transcription of audio streams into text
+  b.Text-to-speech
+    Enable your applications, tools, or devices to convert text into human-like synthesized speech
+  c.Speech Translation
+    Enable real-time, multi-language speech-to-speech and speech-to-text translation of audio streams
+  d.All Speech documentation
+    Speaker recognition, custom keywords, intent recognition, and more
+	
+4. Vision
+  a.Computer Vision
+    Analyze images and recognize text, objects, and more
+  b.Face
+    Recognize people and their attributes in an image
+  c.Custom Vision
+    Build, deploy, and improve your own image classifiers
+
+
+#computer vision api Azure AI
+http://aidemos.microsoft.com/computer-vision
+
+#video indexer api Azure AI
+http://aidemos.microsoft.com/video-indexer
+
+#documentation for ALL conginitive services API
+http://centralus.dev.cognitive.microsoft.com/docs/services
+
+#draw chart and cloud diagram
+http://app.diagrams.net/ or http://draw.io/
+http://lucid.app/documents#/dashboard?folder_id=home
+
+#enable downloading in windowsVM
+localserver-->IE enhance security configuration-->off-->off
+
+#generate self-signed certificate for VPN gateway by powershell
+http://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-certificates-point-to-site
+
+#Create a self-signed root certificate
+$cert = New-SelfSignedCertificate -Type Custom -KeySpec Signature `
+-Subject "CN=P2SRootCert" -KeyExportPolicy Exportable `
+-HashAlgorithm sha256 -KeyLength 2048 `
+-CertStoreLocation "Cert:\CurrentUser\My" -KeyUsageProperty Sign -KeyUsage CertSign
+
+#Create a self-signed client certificate
+New-SelfSignedCertificate -Type Custom -DnsName P2SChildCert -KeySpec Signature `
+-Subject "CN=P2SChildCert" -KeyExportPolicy Exportable `
+-HashAlgorithm sha256 -KeyLength 2048 `
+-CertStoreLocation "Cert:\CurrentUser\My" `
+-Signer $cert -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.2")
+
+
+#point to site vpn connection establishnent
+---server side--------
+1. export the root certificate with file in windows system
+windows-->manage-user-certificates-->certificate name-->right click on it-->All task-->export-->next-->select-->do not export private key-->save in the file in desktop(*.cer extension)-->save
+2. open the file copy the private key and paste into network gateway -->point-to-site configuration-->
+3. download VPN client and copy it to the clinet machine
+4. export the clinet certificate for client machine
+windows-->manage-user-certificates-->certificate name-->right click on it-->All task-->export-->next-->select-->export private key-->security-->enable password-->save in the file in desktop(*.pfx extension)-->save
+
+---client side(Administrator access)--------
+1. install the client certificate in clinet machine with .pfx extension generated earlier
+windows-->manage-user-certificates-->certificate name-->right click on it-->All task-->export-->next-->select-->do not export private key-->save in the file in desktop(*.cer extension)-->save
+2. copy the vpn clinet zip folder to temp folder
+3. extract it 
+4. run the application with respect to the OS
+5. Go to VPN setting from windows search bar
+6. select azure network-->connect
+
+#Lab - Point-to-Site VPN - Using Azure AD Authentication - Reference
+1. Use the following URL to register the Azure VPN enterprise application
+http://login.microsoftonline.com/common/oauth2/authorize?client_id=41b23e61-6c1e-4545-b367-cd054e0ed4b4&response_type=code&redirect_uri=http://portal.azure.com&nonce=1234&prompt=admin_consent
+
+2. When configuring the Point-to-Site VPN connection , use the following as a reference. Remember to change the directory ID
+Tenant
+http://login.microsoftonline.com/70c0f6d9-7f3b-4425-a6b6-09b47643ec58/
+
+Audience
+41b23e61-6c1e-4545-b367-cd054e0ed4b4
+
+Issuer
+http://sts.windows.net/70c0f6d9-7f3b-4425-a6b6-09b47643ec58/
+
+#nginx-ingress yaml helm
+http://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/cloud/deploy.yaml
+
+#webserver for windows VM with public IP default page
+C:\inetpub\wwwroot\Default.html
+Windows server manager-->add roles and features--->next-->next-->select webserver checkbox-->next-->next-->install
+
+#add Azure load balancer for Webserver between VM
+1.create public ip
+2.dissassociate public Ip of VM and make private IP static for the webserver VM
+3. a.create basic/standard azure load balancer
+   b.frontend ip confiduration--->add public ip
+   c.add backend pool-->name/vnet name/vm associate/add both webserver VM IP
+   d.add new health probe-->TCP protocal/name/port/interval/unhealthy threshhold
+   e.add Load Balancing rule-->name/frontendpublicIp/protocol/port/backend port/Health probe/    
+   f.add NAT inbound rule for specific load vm direct and with respect to port
+
+#enable apm in tomcat by setenv.sh file
+export JAVA_OPTS="$JAVA_OPTS -javaagent:elastic-apm-agent-1.26.0.jar"
+export JAVA_OPTS="$JAVA_OPTS -Delastic.apm.service_name=omnistore-admin-services"
+export JAVA_OPTS="$JAVA_OPTS -Delastic.apm.application_packages=com.tcs.retail.store"
+export JAVA_OPTS="$JAVA_OPTS -Delastic.apm.server_url=http://apm-server-apm-server:8200"
+
+#fine public ip of system by powershell or search "whatsmyip" on google
+(Invoke-WebRequest whatsmyip.strath.ac.uk).content.trim()|findstr ip:
+	
+#uptime and downtime clculation w.r.t given SLA 
+http://uptime.is/
+
+#pricing calculator in azure
+http://azure.microsoft.com/en-us/pricing/calculator/
+
+#control nginx for access outisde whitelist ip from get this
+http://ipinfo.io/ip
+http://whatismyipaddress.com/
+
+#windows with powershell control nginx for access outisde whitelist ip from get this
+(Invoke-WebRequest ifconfig.me/ip).content.trim()
+
+docker run -p expose_port_for_internet:conatiner_port
+
+#how to see docker stats by container name
+docker stats --format "table {{.Name}}\t{{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
+
+#delete all images of docker with same tag e.g. <none>
+docker rmi  -f $(docker images -a | grep "^<none>" | awk '{print $3}')
+docker rmi $(docker images --format '{{.ID}}' --filter=dangling=true)
+
+#enter docker container with root access by user root with id 0
+docker exec -u 0 -it <conatiner_name> /bin/sh
+docker exec -u 0 -it receipt-dev /bin/sh
+
+#set docker container non root user in dockerfile
+RUN groupadd -r <GroupName> --gid <GroupId> && useradd -d /home/<UserName> -ms /bin/bash -r -g <UserName> <GroupName> --uid <UserID>
+USER <UserName>
+RUN groupadd -r T12903200 --gid 1073 && useradd -d /home/T12903200 -ms /bin/bash -r -g T12903200 T12903200 --uid 1072
+USER T12903200
+
+java -DOMNISTORE_HOME=$OMNISTORE_HOME -XX:+UseG1GC -verbose:gc -XX:+HeapDumpBeforeFullGC -XX:+HeapDumpAfterFullGC -XX:HeapDumpPath=/opt/promoheap.out -XX:+PrintGCDetails -jar /usr/local/omnistore-ms-promotion-services-0.0.1-SNAPSHOT.jar --spring.config.location=/usr/local/application.properties,/usr/local/bootstrap.properties
+-XX:+UseG1GC -verbose:gc -XX:HeapDumpPath=/opt/promoheap.out -XX:+PrintGCDetails
+
+#print GC log with JAVA 
+-Xms512M -Xmx512M -XX:G1HeapRegionSize=16M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1ReservePercent=15 -XX:ConcGCThreads=1 -XX:InitiatingHeapOccupancyPercent=70 -XX:+UseStringDeduplication -XX:-DisableExplicitGC -verbose:gc -Xloggc:/opt/bo_gc.log
+http://heaphero.io/
+jmap -dump:[live],format=b,file=<file-path> <pid>
+jmap -dump:live,format=b,file=/tmp/dump.bin 6
+
+
+export CATALINA_OPTS="-XX:+PrintGCTimeStamps \
+-XX:+PrintGCDetails 
+-XX:+PrintGCApplicationStoppedTime \
+-XX:+PrintGCApplicationConcurrentTime \
+-XX:+PrintHeapAtGC \
+-Xloggc:logs/gc.log"
+
+Azure Bastion server details:
+
+VMName : os-win-01
+
+username: osdemouser
+
+password :Admin@osdemo_v1
+-----------------------------------
+Azure Bastion server details:
+
+VMName : os-win-02
+
+username: osdemouser
+
+password :Admin@osdemo_v1
+----------------------------------------
+os-linux-pub-10.0.0.6
+osdemouser (bastion folder keys available at keys folder)
+---------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: omnicore 
+  labels:
+    app: omnicore
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8163
+  selector:
+    app: omnicore
+
+-----------------------------shell script to check resources in azure------------------------------
+# Create Resource Group or use existing one if exists
+validate_and_create_resource_group()
+{
+	if [ $(az group exists --name microservices) = false ]
+	then
+		display_success Creating resource group microservices
+		az group create --name microservices --location eastus > /dev/null 2>&1
+		if [ $? -eq "0" ]
+		then
+			display_success Created resource group microservices
+		else
+			display_error Unable to Creating resource group microservices
+			exit
+		fi
+				
+	else
+
+		MESSAGE="Resource Group microservices already exists. Using existing one.."
+	fi
+}
+create_container_registry()
+{
+	
+	res=`az resource list --name omnistoreimages --resource-group osdemorg --output tsv`
+
+	if [ -z "$res" ]
+	then
+		echo "Creating Container Registry omnistoreimages in resource group osdemorg"
+		az acr create --resource-group osdemorg --name omnistoreimages --sku Standard --location eastus
+		
+		res=`az resource list --name omnistoreimages --resource-group osdemorg --output tsv`
+	
+		
+		if [ ! -z "$res" ]
+		then
+			echo "Successfully Created Container Registry  omnistoreimages in resource group osdemorg"
+		else
+			echo "display_error Unable to create Container Registry omnistoreimages in resource group osdemorg"
+		fi
+	else
+		MESSAGE="Container Registry omnistoreimages in resource group osdemorg already in use.Using existing one..."
+		echo $MESSAGE
+	fi	
+}
+
+--------------------DISK attached to THE VM linux---------------------------------------------------------------------------
+#storage disk check
+lsblk -o NAME,HCTL,SIZE,MOUNTPOINT | grep -i "sd"
+output:
+sda     0:0:0:0      30G
+├─sda1             29.9G /
+├─sda14               4M
+└─sda15             106M /boot/efi
+sdb     1:0:1:0      14G
+└─sdb1               14G /mnt
+sdc     3:0:0:0       4G(attached but not mounted)
+
+#Partition a new disk
+If you are using an existing disk that contains data, skip to mounting the disk. If you are attaching a new disk, 
+you need to partition the disk.
+The parted utility can be used to partition and to format a data disk.
+
+#The following example uses parted on /dev/sdc, which is where the first data disk will typically be on most VMs. 
+Replace sda with the correct option for your disk. We are also formatting it using the XFS filesystem.
+
+sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
+sudo mkfs.xfs /dev/sdc1
+sudo partprobe /dev/sdc1
+
+remark :
+Use the partprobe utility to make sure the kernel is aware of the new partition and filesystem. 
+Failure to use partprobe can cause the blkid or lslbk commands to not return the UUID for the new filesystem immediately
+
+#Mount the disk
+Create a directory to mount the file system using mkdir. The following example creates a directory at /datadrive:
+sudo mkdir /datadrive
+
+Use mount to then mount the filesystem. The following example mounts the /dev/sdc1 partition to the /datadrive mount point:
+sudo mount /dev/sdc1 /datadrive
+
+remark:
+To ensure that the drive is remounted automatically after a reboot, it must be added to the /etc/fstab file.
+It is also highly recommended that the UUID (Universally Unique Identifier) is used in /etc/fstab to refer to the drive 
+rather than just the device name (such as, /dev/sdc1). 
+If the OS detects a disk error during boot, using the UUID avoids the incorrect disk being mounted to a given location.
+
+#To find the UUID of the new drive, use the blkid utility:
+sudo blkid
+output:
+/dev/sda1: LABEL="cloudimg-rootfs" UUID="11111111-1b1b-1c1c-1d1d-1e1e1e1e1e1e" TYPE="ext4" PARTUUID="1a1b1c1d-11aa-1234-1a1a1a1a1a1a"
+/dev/sda15: LABEL="UEFI" UUID="BCD7-96A6" TYPE="vfat" PARTUUID="1e1g1cg1h-11aa-1234-1u1u1a1a1u1u"
+/dev/sdb1: UUID="22222222-2b2b-2c2c-2d2d-2e2e2e2e2e2e" TYPE="ext4" TYPE="ext4" PARTUUID="1a2b3c4d-01"
+/dev/sda14: PARTUUID="2e2g2cg2h-11aa-1234-1u1u1a1a1u1u"
+/dev/sdc1: UUID="33333333-3b3b-3c3c-3d3d-3e3e3e3e3e3e" TYPE="xfs" PARTLABEL="xfspart" PARTUUID="c1c2c3c4-1234-cdef-asdf3456ghjk"
+  
+#open the /etc/fstab file in a text editor as follows:
+first copy the old file for backup
+sudo nano/vi /etc/fstab
+
+#Add the following line to the end of the /etc/fstab file:
+UUID=33333333-3b3b-3c3c-3d3d-3e3e3e3e3e3e(random example purpose only)   /datadrive   xfs   defaults,nofail   1   2
+UUID=8f5d43eb-3f87-4166-98be-8174d13a1d9c /datadrive   xfs   defaults,nofail   1   2
+#Verify the disk
+lsblk -o NAME,HCTL,SIZE,MOUNTPOINT | grep -i "sd"
+output:
+sda     0:0:0:0      30G
+├─sda1             29.9G /
+├─sda14               4M
+└─sda15             106M /boot/efi
+sdb     1:0:1:0      14G
+└─sdb1               14G /mnt
+sdc     3:0:0:0       4G
+└─sdc1                4G /datadrive(mounted ready for use)
+--------------------DISK attached to THE VM windows---------------------------------------------------------------------------
+winsdows server-->
+configuration-->
+storage & disk--->
+select disk--->
+right click and intialize--->
+right click new volume with drive name or letter.
+--------------------Encryption of disk by self managed key-----------------------------
+1. create key vault
+2. select keys
+3. generate/import keys with -->generate-->key name-->key type-->RSA-->RSA key size-->2048-->create
+4. go to disk enryption set in azure portal
+5. select-->name-->resource-group-->key-vault-name-->key-->version-->review+create
+6. stopped deallocate vm first
+7. select the disk which you want to encrypt
+8. selct-->encryption-->encryption-type-->Encryption at rest with a customer managed keys-->disk-encryption-set-->save
+--------------------ADE(Azure Disk Encryption) of disk---------------------------------------
+1. create key vault-->enable azure disk encryption feature
+2. select keys
+3. generate/import keys with -->generate-->key name-->key type-->RSA-->RSA key size-->2048-->create
+4. stopped deallocate vm first
+5. select the disk which you want to encrypt
+6. go to additional setting in disk windows of vm 
+7. select the all disk
+8. select-->encryption-->encryption-type-->Encryption at rest with a customer managed keys-->disk-encryption-set-->save
+--------------------Create ssnapshot from disk or vice versa-----------------------------
+1. select disk
+2. create snapshot
+3. create disk --->from snapshot
+4. attach disk to 
+---------------------Enable web server by powershell script in windows---------------------------------------------------------------------------
+import-module servermanager
+add-windowsfeature web-server -includeallsubfeature
+------------------------------------------------------------------------------------------------------------------------------------
+
+C:\Users\1820387\Desktop\DevOps\notes-documents\Yaml
+
+=====================redis-server=====================
+redis.cli -h osms.redis.cache.windows.net -p 6379 -a oIX1TfTDoxlPCeC6LpZjh0gsY9A7mvcqG7rKmgf8bQ0=
+
+http://portal.azure.com/#@tcscomprod.onmicrosoft.com/resource/subscriptions/d2e44caa-1265-4fc3-bdaf-dc76a0a5d08e/overview
+
+=========================================================Docker connection in azure command============================================
+#additional parameters for GC and JAVA related configuration like memory,gc at all
+-XX:+UseG1GC -XX:+DisableExplicitGC -verbose:gc -Xloggc:$OMNISTORE_HOME/gc.log -XX:+PrintGCDetails
+
+type: Resource
+resource:
+  name: cpu
+  target:
+    type: Utilization
+    averageUtilization: 60
+
+docker build -t omnicore .
+docker build -t omniprice .
+
+docker run -p 8163:8163 -v /home/osdemouser/omnivolume:/opt/omnistore-home/logs  omnicore
+docker run -p 8167:8167 -v /home/osdemouser/omnivolume:/opt/omnistore-home/logs  omniprice
+
+docker run -p 8163:8163 -d -v /home/osdemouser/omnivolume:/opt/omnistore-home/logs  --env DB_HOST=omnicore.mysql.database.azure.com --env DB_HOST=omnicore.mysql.database.azure.com --env DB_PORT=3306 --env DB_NAME=omnistore_core --env DB_USER_NAME=omniadmin@omnicore  --env DB_USER_PASS=omnipass_123 --env REDIS_PASS=6OZNJlC9UdqVFHEzGZQTPs+pHCjw9iOH0XbfzIMj6nQ= --cpus 0.5 --name=omnicore omnicore
+
+docker run -p 8167:8167 -d -v /home/osdemouser/omnivolume:/opt/omnistore-home/logs  --env DB_HOST=omniprice.mysql.database.azure.com --env DB_HOST=omniprice.mysql.database.azure.com --env DB_PORT=3306 --env DB_NAME=omnistore_price --env DB_USER_NAME=omniadmin@omniprice  --env DB_USER_PASS=omnipass_123 --cpus 0.5 --name=omniprice omniprice
+
+docker run -p 8166:8166 -d -v /home/osdemouser/omnivolume:/opt/omnistore-home/logs  --env DB_HOST=omnitax.mysql.database.azure.com --env DB_HOST=omnitax.mysql.database.azure.com --env DB_PORT=3306 --env DB_NAME=omnistore_tax --env DB_USER_NAME=omniadmin@omnitax  --env DB_USER_PASS=omnipass_123 --env REDIS_PASS=6OZNJlC9UdqVFHEzGZQTPs+pHCjw9iOH0XbfzIMj6nQ= --cpus 0.5 --name=omnitax omnitax
+
+#tag docker images
+docker tag omnicore:latest omnistoreimages.azurecr.io/omnicore:example
+docker tag omnitax:latest omnistoreimages.azurecr.io/omnitax:example
+docker tag omniprice:latest omnistoreimages.azurecr.io/omniprice:example
+docker tag omniitem:latest omnistoreimages.azurecr.io/omniitem:example
+docker tag omnitxn:latest omnistoreimages.azurecr.io/omnitxn:example
+
+#push the docker image to acr
+docker push omnistoreimages.azurecr.io/omnicore:example
+docker push omnistoreimages.azurecr.io/omniprice:example
+docker push omnistoreimages.azurecr.io/omnitax:example
+docker push omnistoreimages.azurecr.io/omniitem:example
+docker push omnistoreimages.azurecr.io/omnitxn:example
+
+#create docker images with tag
+docker build -t <docker_registry_id>/<name>:tag <location>
+docker build -t osedionms.azurecr.io/omnicore:example
+
+#find only container numeric id by command
+docker ps -a -q --filter "name=value"
+
+#list port mapping of specific conatiner
+docker port <conatiner_id>
+
+http://omnicore/os-coredata
+http://omniitem/os-item
+====================================================Azure Comnand=====================================================================
+#availablity set in azure vm
+1.It is defined as logical grouping of vm
+   a.Fault domain : Group of vm shahring a comman power source and network switches
+   b.Update domain : --"------- thats are rebooted (updated) at same time
+   
+
+
+#copy file inside the docker container
+docker cp . root@8a048b07e421:/usr/local/application.properties
+kubectl cp os-tender-app-log4j2.xml omnitender-5f9646875d-m5nxl:/opt/omnistore-home/etc/properties/log4j
+
+#To copy a file from the container to the local file system, use:
+docker cp <container>:<src-path> <local-dest-path> 
+kubectl cp <your-pod-name>:<src-path> <local-dest-path>/<new/excitingfilename to copy>
+omnitender-bd9c495d6-rhxl5
+kubectl cp omnisale-59f4564fc4-5wvjh:opt/omnistore-home/logs/os-salereturn-application/os-salereturn-application-app.log sale-app.log
+kubectl cp omnireceipt-759c548b88-hzvrb:opt/omnistore-home/logs/os-receipt-application/os-receipt-application-app.log ./logs/receipt-app.log
+kubectl cp omnitender-7868c976b-bxplx:usr/local/tomcat/heapdump.bin ./heapdump.bin
+kubectl cp omnibo-c64f5bcc6-lv99l:opt/omnistore-home/logs/os-bo-application/os-bo-application-app.log ./logs/bo-app.log
+kubectl cp omnipromo-6cdb77f89-s4fkq:opt/omnistore-home/logs/os-promotions-application/os-promotions-application-app.log ./logs
+kubectl cp omnistore-admin-services-79db5bfdff-mfzgz:/usr/local/tomcat/conf/server.xml server.xml
+
+#kubectl pod live logs
+kubectl logs <pod_name> --follow
+kubectl logs omniprice --follow
+ 
+#volume mount in yaml
+spec:
+	containers:
+	  volumeMounts:
+		- name : hostvolume
+		  mountPath:/inertnalPath 
+	volumes:
+	- name : hostvolume
+	  hostpath:
+	   path : /externalpath
+	   type : Directory
+
+core-->-->security-->price-->item-->tax-->promo-->txn-support-->sale-->tender-->receipt-->bo
+
+#Role Management and access to user
+subscription--><resource>-->IAM-->Add role Management-->Add user details
+
+#azure login from cli
+az login -u <username> -p <password>
+az login -u 1820387@tcs.com Niklaus@2021
+
+#start/stop kubernates cluster
+az aks start/stop --resource-group osdemorg --name offers-Pt
+
+#download & connect to kubectl in local sytem
+curl -LO http://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/windows/amd64/kubectl.exe
+
+
+#kubernates access to for multiples cluster 
+http://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/
+
+#connect cluster to azure cli
+az aks browse --resource-group microservices --name osms-k8s-new
+
+kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+
+#login to azure acr 
+sudo az acr login --name omnistoreimages.azurecr.io
+ 
+RegistryName: omnistoreimages
+
+LoginServer: omnistoreimages.azurecr.io
+
+username:omnistoreimages
+pwd     :lMNKoxk2nc=HfztLNcYLtLZtGsOqKDyz(working)
+         xeY=A0lNYrSSv7L8akH1jtwzpar7FbN6
+
+#how to check and edit deployment
+kubectl edit deployment.apps <deployment-name>
+kubectl edit deployment.apps omnireceipt
+
+#attach container registries to cluster
+az aks update -n payment-k8s-new -g osdemorg --attach-acr omnistoreimages
+
+#validate that the registry is accessible from the AKS cluster with kubernates clientIP
+az aks check-acr --name offers-aks --resource-group osdemorg --acr omnistoreimages.azurecr.io
+
+#azure storage account for each user have seprate storage in storge explorer
+storage explorere-->Omnistore-Demo-->cs-1290320-tcs-com-10030000ace81197
+
+#create azure secret
+kubectl create secret generic offers-fileshare --from-literal=azurestorageaccountname=<name of storage account> --from-literal=azurestorageaccountkey=<access key of storage account>
+kubectl create secret generic offers-fileshare --from-literal=azurestorageaccountname=csb1003200094f9c116 --from-literal=azurestorageaccountkey=023RtIjG2Jz58sOhz67vBoXNQKHAAqe+we6qpdbuv9Yz6syw7DlEWoOyThfQUFae+IZFzVrrWrhr8zfa6Ewlyg==
+
+#To check azure secret
+kubectl get secret offers-fileshare -o yaml
+
+#timebased series moniter
+kubectl <command> --watch
+
+#Create the Pod:
+kubectl apply -f omnicore.yaml
+kubectl apply -f <pod-name.yaml>
+
+#delete replica service responsible for recreating pods 
+kubectl delete rs <replicaset-service-name>
+
+#get all service name
+kubectl get service/svc(shows all list) 
+
+#kubectl expose service by deployment with ClusterIP
+kubectl expose deployment <deployment-name> --type=LoadBalancer
+kubectl expose deployment omnisale --type=LoadBalancer
+
+#delete service
+kubectl delete service  <name of the service>
+
+#delete cluster pod
+kubectl delete -f <file.yml>
+
+#get all services,pods,container in kubernates
+kubectl get all(shows all pods)
+
+#get the pod 
+kubectl get pod/po
+
+#get the service
+kubectl get service/svc
+
+#get the statefulset application
+kubectl get statefulset
+
+#pod ip with node details
+kubectl get pod -o wide
+
+#inside statefulset container
+kubectl exec -it <{pod_name}-{index}> -- sh
+
+#get the replicaset
+kubectl get replicaset
+
+#insdie kubernates container
+kubectl exec --stdin --tty <pod-id> -- /bin/bash
+
+#Opening a shell when a Pod has more than one container
+kubectl exec -i -t <my-pod-id> --container omnitender-697cd9f677-snk6s -- /bin/bash
+
+#get inside the pods
+kubectl exec -it omnitender-697cd9f677-v8rm7 bin/bash
+
+#delte the pod 
+kubectl delete pod <name of the pod/id>
+
+#logs kubernates
+kubectl logs <pod_id>/ <container_id>
+kubectl describe pod <pod/container_id>
+
+#pod variables 
+kubectl exec <enter-pod-name> -- env | grep OMNICORE
+
+#multicontainer deployment in same pod logs of specific conatiner
+kubectl logs <pod_id>/ <container_id> -c <container_name>
+
+#open file inside kubernates conatiner
+tail -f <filenme>
+
+#to delete policy in cluter
+kubectl delete hpa <name of the autoscaling pode>
+kubectl delete hpa omnicore
+
+#hpa enabled in aks
+kubectl autoscale deployment deployment-name --cpu-percent=average-percent --min=minimum-pod --max=maximum-pod
+kubectl autoscale deployment omnisale --cpu-percent=80 --min=1 --max=3
+
+#create or scale deployment or increase pod by command
+kubectl scale --replicas=<no_of_replica> deployment <deployment-name>
+kubectl scale --replicas=2 deployment omnitxn
+kubectl scale --replicas=6 -f omnitxn.yaml
+kubectl scale --replicas=3 replicaset omnitxn-77f46b49fd
+
+# create resource(s)
+kubectl apply -f ./my-manifest.yaml 
+
+# create from multiple files           
+kubectl apply -f ./my1.yaml -f ./my2.yaml 
+
+# create resource(s) in all manifest files in dir     
+kubectl apply -f ./dir             
+
+# create resource(s) from url      
+kubectl apply -f http://git.io/vPieo  
+
+# start a single instance of nginx        
+kubectl create deployment nginx --image=nginx  
+
+# create a Job which prints "Hello World"
+kubectl create job hello --image=busybox -- echo "Hello World" 
+
+# create a CronJob that prints "Hello World" every minute
+kubectl create cronjob hello --image=busybox   --schedule="*/1 * * * *" -- echo "Hello World"    
+
+# get the documentation for pod manifests
+kubectl explain pods                           
+
+# Get commands with basic output
+kubectl get pods --all-namespaces             # List all pods in all namespaces
+kubectl get pods -o wide                      # List all pods in the current namespace, with more details like nodepools
+kubectl get deployment my-dep                 # List a particular deployment
+kubectl get pod my-pod -o yaml                # Get a pod's YAML
+
+# Describe commands with verbose output
+kubectl describe nodes my-node
+kubectl describe pods my-pod
+
+# List Services Sorted by Name
+kubectl get services --sort-by=.metadata.name
+
+#enable service or expose deployment in internet 
+kubectl expose deployment deployment-name --type=LoadBalancer --name=service-name
+kubectl expose deployment omnicore --type=LoadBalancer --name=omnicore --port=80 --target-port=8000
+
+# Create a service for a replicated nginx, which serves on port 80 and connects to the containers on port 8000.
+kubectl expose rc nginx --port=80 --target-port=8000
+
+# Create a service for a replication controller identified by type and name specified in "nginx-controller.yaml", which serves on port 80 and connects to the containers on port 8000.
+kubectl expose -f nginx-controller.yaml --port=80 --target-port=8000
+
+# Create a service for a pod valid-pod, which serves on port 444 with the name "frontend"
+kubectl expose pod valid-pod --port=444 --name=frontend
+
+# Create a second service based on the above service, exposing the container port 8443 as port 443 with the name "nginx-http"
+kubectl expose service nginx --port=443 --target-port=8443 --name=nginx-http
+
+# Create a service for a replicated streaming application on port 4100 balancing UDP traffic and named 'video-stream'.
+kubectl expose rc streamer --port=4100 --protocol=udp --name=video-stream
+
+# Create a service for a replicated nginx using replica set, which serves on port 80 and connects to the containers on port 8000.
+kubectl expose rs nginx --port=80 --target-port=8000
+
+# List pods Sorted by Restart Count
+kubectl get pods --sort-by='.status.containerStatuses[0].restartCount'
+
+#create or run yaml file 
+kubectl create -f deployment.yaml
+
+# List PersistentVolumes sorted by capacity
+kubectl get pv --sort-by=.spec.capacity.storage
+
+#create mysqlDB server from azure-cli
+az mysql server create --resource-group <resource name> --name <server name> --location <location> --admin-user <username> --admin-password <password> --sku-name <pricingtier>_<Generation>_<core> --storage-size <Dbsize> --version <DBversion> --tags "Component=MySqlDatabase Project=OmnistoreOffers SWON=1046592"
+az mysql server create --resource-group osdemorg --name offers-mysql --location eastus --admin-user omnioffers --admin-password offers_123 --sku-name GP_Gen5_2 --storage-size 12288 --tags "Component=MySqlDatabase Project=OmnistoreOffers SWON=1046592"
+
+#start/stop mysql server
+az mysql server start/stop/delete --name <server-name> -g <resource-group-name>
+
+#stop mysql db server
+az login
+az mysql server stop --name omnicore -g microservices
+az mysql server stop --name omnibo -g microservices
+az mysql server stop --name omniitem -g microservices
+az mysql server stop --name omniivd -g microservices
+az mysql server stop --name omniprice -g microservices
+az mysql server stop --name omnipromo -g microservices
+az mysql server stop --name omnireceipt -g microservices
+az mysql server stop --name omnisale -g microservices
+az mysql server stop --name omnisecurity -g microservices
+az mysql server stop --name omnitax -g microservices
+az mysql server stop --name omnitender -g microservices
+az mysql server stop --name omnitxn -g microservices
+echo "All servers stop"
+
+#start mysql db server
+az login
+az mysql server start --name omnibo -g osdemorg
+az mysql server start --name omnicore -g osdemorg
+az mysql server start --name omniitem -g osdemorg
+az mysql server start --name omniivd -g osdemorg
+az mysql server start --name omniprice -g osdemorg
+az mysql server start --name omnipromo -g osdemorg
+az mysql server start --name omnireceipt -g osdemorg
+az mysql server start --name omnisale -g osdemorg
+az mysql server start --name omnisecurity -g osdemorg
+az mysql server start --name omnitax -g osdemorg
+az mysql server start --name omnitender -g osdemorg
+az mysql server start --name omnitxn -g osdemorg
+echo "All servers start"
+
+#start/stop azure vm
+az vm start/stop/deallocate -n <vm-name> -g <resource-group-name>
+
+#create Resource group
+az group create --name myResourceGroup --location eastus
+
+#create NSG
+az network nsg create --resource-group osdemorg --name demonsg --tags "Component=Security-group Project=os-demo SWON=1046592" 
+
+#create security rule in nsg
+az network nsg rule create --resource-group osdemorg --name Allow80 --nsg-name os-bastion-nsg --priority 102 --access allow --direction inbound --source-address-prefixes '*' --destination-address-prefixes '*' --destination-port-ranges '*' --source-port-ranges '*' --protocol Tcp
+
+#create vnet
+az network vnet create --resource-group osdemorg --name MyVnet --address-prefix 11.0.0.0/22
+
+#create subnet
+az network vnet subnet create --resource-group osdemorg --vnet-name MyVnet --name MySubnet --address-prefixes 11.0.1.0/24                           
+
+#create mysql server
+az mysql server create --resource-group osdemorg --name offers-mysql --location eastus --admin-user omnioffers --admin-password offers_123 --sku-name GP_Gen5_2 --storage-size 12288 --tags "Component=MySqlDatabase Project=OmnistoreOffers SWON=1046592"
+
+#create redis-server
+az redis create --location eastus --name azure --resource-group osdemorg --sku Basic --vm-size c0 --enable-non-ssl-port --tags "Component=Redis-Cache Project=os-demo SWON=1046592"
+
+#create ACR for azure
+az acr create -n osmsde -g osdemorg --sku Premium --admin-enabled true  --location eastus --tags "Component=ConatinerRegistry Project=os-demo SWON=1046592"
+
+#create kubernates cluster
+az aks create --resource-group osdemorg --name demo-Pt --location eastus --enable-cluster-autoscaler --node-vm-size Standard_DS2_v2 --min-count 1 --max-count 3 --kubernetes-version 1.19.11 --node-count 1 --network-plugin kubenet --zones 3 --generate-ssh-keys --enable-addons monitoring --attach-acr omnistoreimages --tags "Component=kubernates-cluster Project=Omnistore SWON=1046592"
+
+#create cosmos-Db
+az cosmosdb create --resource-group osdemorg --name ptdemo --kind MongoDB  --server-version 4.0 --capabilities EnableServerless --locations regionName=eastus --tags "Component=CosmosDb Project=os-demo SWON=1046592"
+
+------------------------------Automatic Public IP NGINX ingress in AKS-----------------------------------
+http://docs.microsoft.com/en-us/azure/aks/ingress-basic
+
+# Create a namespace for your ingress resources
+kubectl create namespace ingress-basic
+
+# Add the ingress-nginx repository
+omnibo-745f6c876d-ncxn4helm repo add ingress-nginx http://kubernetes.github.io/ingress-nginx
+
+# Use Helm to deploy an NGINX ingress controller
+helm install nginx-ingress ingress-nginx/ingress-nginx \
+    --namespace ingress-basic \
+    --set controller.replicaCount=2 \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
+
+# let's generate a self-signed certificate with openssl.
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -out aks-ingress-tls.crt \
+    -keyout aks-ingress-tls.key \
+    -subj "/CN=osms-pt.eastus.cloudapp.azure.com/O=aks-ingress-tls"
+	
+#create AKS secret for TLS/SSl certification key or certificate
+kubectl create secret tls aks-ingress-tls \
+    --namespace ingress-basic \
+    --key aks-ingress-tls.key \
+    --cert aks-ingress-tls.crt
+	
+#The tls section tells the ingress route to use the Secret named aks-ingress-tls for the host omnistore.retail.com
+spec:
+  tls:
+  - hosts:
+    - demo.azure.com
+    secretName: aks-ingress-tls
+  rules:
+  - host: demo.azure.com
+  
+#To check the Dynamic IP in assigned to loadbalancer
+kubectl --namespace ingress-basic get services -o wide -w nginx-ingress-ingress-nginx-controller
+
+#to get loadbalancer Externalip in variable
+LoadBalancerIP=$(kubectl get services -n ingress-basic nginx-ingress-ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+#to delete namespace and resources inside it
+kubectl delete namespace <ingress-basic(name of namespace)>
+
+------------------------------Static Public IP NGINX ingress in AKS-----------------------------------
+##Create Static Public IP for ingress
+# Get the resource group name of the AKS cluster 
+AKS_RG=$(az aks show --resource-group osdemorg --name offers-aks --query nodeResourceGroup -o tsv)
+
+# TEMPLATE - Create a public IP address with the static allocation
+az network public-ip create --resource-group <REPLACE-OUTPUT-RG-FROM-PREVIOUS-COMMAND> --name myAKSPublicIPForIngress --sku Standard --allocation-method static --query publicIp.ipAddress -o tsv
+
+# REPLACE - Create Public IP: Replace Resource Group value
+PUBLIC_IP=$(az network public-ip create --resource-group $AKS_RG \
+                            --name myAKSPublicIPForIngress \
+							--sku Standard \
+							--allocation-method static \
+							--query publicIp.ipAddress \
+							-o tsv)
+
+#note down the public_IP or store it in varible
+52.154.156.139
+
+## Install Ingress Controller
+# Install Helm3 (if not installed)
+brew install helm
+
+# Create a namespace for your ingress resources
+kubectl create namespace ingress-basic
+
+# Add the official stable repository
+helm repo add ingress-nginx http://kubernetes.github.io/ingress-nginx
+helm repo add stable http://kubernetes-charts.storage.googleapis.com/
+helm repo update
+
+#  Customizing the Chart Before Installing. 
+helm show values ingress-nginx/ingress-nginx
+
+# Use Helm to deploy an NGINX ingress controller
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+    --namespace ingress-basic \
+    --set controller.replicaCount=2 \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set controller.service.externalTrafficPolicy=Local \
+    --set controller.service.loadBalancerIP="REPLACE_STATIC_IP" 
+
+# Replace Static IP captured in Step-02
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+    --namespace ingress-basic \
+    --set controller.replicaCount=2 \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set controller.service.externalTrafficPolicy=Local \
+    --set controller.service.loadBalancerIP="$PUBLIC_IP" 
+	
+# List Services with labels
+kubectl get service -l app.kubernetes.io/name=ingress-nginx --namespace ingress-basic
+
+# List Pods
+kubectl get pods -n ingress-basic
+kubectl get all -n ingress-basic
+
+
+# Access Public IP
+http://<Public-IP-created-for-Ingress>
+
+#Acr login from Docker
+docker login omnims.azurecr.io -u omnims -pIpOjwvuCmn2ujRNrqkRj2d/ajY4RF5nH
+
+#connect to azure shell direct
+http://shell.azure.com
+
+#to get information about aks node and other information
+kubectl get nodes -o wide
+
+#all aks information and credentials store in .kubeconfig file in storage account
+
+#list all system default pod in control plane related for AKS running in cluster
+kubectl get pod --all-namespaces
+
+#namespace "kube-system" used for control plane namespace by default
+
+#how to access all namespaces in AKS cluster running
+kubectl get namespaces/ns
+
+#list all object created by AKS by default like service,replicaset etc.
+kubectl get all --all-namespaces
+
+#to check the information about of cluster VM node pool
+search in azure portal "virtual machine scale set" option-->click on agent pool-->public_ip_address section in overview
+
+#to deploy all application by single directory
+put all yaml inside directory "folder-name i.e kube-manifests" and apply command
+kubectl apply -f kube-manifests/
+
+#delete all deployment
+kubectl delete -f kube-manifests/
+
+#alias for k8s
+pods---------------->po 
+service------------->svc
+replica-set--------->rs
+
+#make alias in bash for kubectl
+alias <alias name>=kubectl
+complete -F __start_kubectl <alias_name>
+
+alias k=kubectl
+complete -F __start_kubectl k
+
+#run command from outside for individual pod  
+kubectl exec -it <pod_name> -- env
+kubectl exec -it <pod_name> -- ls
+kubectl exec -it <pod_name> -- cat /opt/omnistore-home/logs
+
+#apply latest changes to replica set without delete existing one
+kubectl replace -f <replica-set_name>.yaml
+
+#top pod command with watch option
+watch -n<interval in sec>  kubectl top pod <pod name>
+watch -n2 kubectl top pod omnisale-7c85b78867-pdnlj
+
+#list deployment
+kubectl get deployments/deploy
+
+#edit deployment.yaml file in running deployment
+kubectl edit deployment/<deployment-name> --record=true
+kubectl edit deployment/omnicore --record=true
+
+#verify roll out status of deployment
+kubectl rollout status deployment/omnicore
+
+#verify rollout history
+kubectl rollout history deployment/omnicore
+
+#check rollout history with revision specific information
+kubectl rollout history deployment/omnicore --revision=1(revision no.)
+
+#rollback to deployment
+kubectl rollout undo deployment/omnicore
+NOTE : when you rollback the deployment the rollback previous version become current version
+
+#rollback to deployment to specific revision version 
+kubectl rollout undo deployment/omnicore --to-revision=3(revision no.)
+
+#pause the deployment for update it
+kubectl rollout pause deployment/omnicore
+
+#resume the deplo after updating it
+kubectl rollout resume deployment/omnicore
+
+#to comment something in .yaml file use "#" before the statement
+
+#YAML conatins with few basics things
+1. YAML comments
+2. YAML Key value pair
+3. YAML Spaces
+4. YAML dictionary or map
+5. YAML array/lists
+6. YAML document seprator
+
+#dictionary/map in YAML
+person:
+	name: sawan          #key: value pair
+	com: tcs
+	age: 27
+#Document seprated by "---" 
+#Array/list in YAML
+person:                  #Dictionary
+	name : sawan
+	age  : 27
+	hobbies:             #List
+		- reading
+		- coding
+		- hacking
+	hobbies: [reading, coding, hacking] #another annotation used for list representation in YAML
+	
+	friends:             #Multiple list
+		- name: natasha
+		  age: 32
+		- name: anshul
+		  age: 26
+		- name: Ashish
+		  age: 27
+---                      #Document seprator
+person:
+	name: sawan
+	com: tcs
+	age: 27
+
+#list all available storage classes
+kubectl get sc(storage classes)
+
+#to check the api version 
+http://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v<1.18-(kubernatesVersion)>
+
+#list all persistant volume claim
+kubectl get pvc
+
+#list all persistant volume
+kubectl get pv
+
+#command to connect to the database in persistant volume claim container running in k8s for Database like postgres,mysql etc
+kubectl run -it --rm --image=mysql:5.6(docker hub image name:version used in PVC) --restart=never mysql-client -- mysql -h mysql -pRoot@123
+
+#connect to Mysql server service from kubernates by external service
+1. create external-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: ExternalName
+  externalName: akswebappdb.mysql.database.azure.com(host name)
+ 
+#command to connect mysql server by kubectl
+kubectl run -it --rm --image=mysql:5.6(docker hub image name:version used in PVC) --restart=never mysql-client -- mysql -h mysql.host.name -u admin@user -pRoot@123
+
+#how to convert string to base64 hash value in bash
+echo -n 'string' | base64
+
+#how to convert base 64 encoded string to normal string
+echo -n 'string' | base64 --decode
+
+#create kubernates-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+	name: name_of_secret
+type: Opaque
+data:
+	key: value
+	
+#define secret value in deployment
+env:
+  - name: MYSQL_ROOT_PASSWORD
+    valueFrom: 
+    secretKeyRef:
+      name: mysql-db-password(name of the secret file deployment)
+      key: db-password(key from secret file)
+	  
+#list secrets in kubernates
+kubectl get secrets
+
+#"resource Quota" used to defined how much resources used by Particular Namespace
+
+#detach container registry from AKS cluster
+az aks update -g resource-group-name -n aks-kluster-name --detach-acr container-registries-name
+
+#aks images pull from ACR using service principal and kubernates secret
+## Create Service Principal to access Azure Container Registry
+- Update ACR_NAME with your container registry name
+- Update SERVICE_PRINCIPAL_NAME as desired
+
+- Review file: shell-script/generate-service-principal.sh
+----------------SHELL_SCRIPT----------------------------------------------
+#!/bin/bash
+
+# Modify for your environment.
+# ACR_NAME: The name of your Azure Container Registry
+# SERVICE_PRINCIPAL_NAME: Must be unique within your AD tenant
+#ACR_NAME=<container-registry-name>
+ACR_NAME=acrdemo2ss
+SERVICE_PRINCIPAL_NAME=acr-sp-demo
+
+# Obtain the full registry ID for subsequent command args
+ACR_REGISTRY_ID=$(az acr show --name $ACR_NAME --query id --output tsv)
+
+# Create the service principal with rights scoped to the registry.
+# Default permissions are for docker pull access. Modify the '--role'
+# argument value as desired:
+# acrpull:     pull only
+# acrpush:     push and pull
+# owner:       push, pull, and assign roles
+SP_PASSWD=$(az ad sp create-for-rbac --name http://$SERVICE_PRINCIPAL_NAME --scopes $ACR_REGISTRY_ID --role acrpull --query password --output tsv)
+SP_APP_ID=$(az ad sp show --id http://$SERVICE_PRINCIPAL_NAME --query appId --output tsv)
+
+# Output the service principal's credentials; use these in your services and
+# applications to authenticate to the container registry.
+echo "Service principal ID: $SP_APP_ID"
+echo "Service principal password: $SP_PASSWD"
+------------------------------------------------------------------------------
+
+## Create Image Pull Secret
+# Template
+kubectl create secret docker-registry <secret-name> \
+    --namespace <namespace> \
+    --docker-server=<container-registry-name>.azurecr.io \
+    --docker-username=<service-principal-ID> \
+    --docker-password=<service-principal-password>
+
+# Replace
+kubectl create secret docker-registry acrdemo2ss-secret \
+    --namespace default \
+    --docker-server=acrdemo2ss.azurecr.io \
+    --docker-username=80beacfe-7176-4ff5-ad22-dbb15528a9a8 \
+    --docker-password=0zjUzGzSx3_.xi1SC40VcWkdVyl8Ml8QNj    
+
+### Update Deployment Manifest with Image Name, ImagePullSecrets
+#yaml file
+    spec:
+      containers:
+        - name: acrdemo-localdocker
+          image: acrdemo2ss.azurecr.io/app2/acr-app2:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: acrdemo2ss-secret           
+
+  
+#command to attach label to node for manual selection
+kubectl label nodes <node-name> <label-key>=<label-value>
+kubectl label nodes kubernetes-foo-node-1.c.a-robinson.internal disktype=ssd
+
+#get kubeconfig file for access clusters AKS
+kubectl config view
+
+#to check which cluster you current connected
+kubectl config current-context
+
+#to switch to another cluster
+kubectl config use-context cluster_name
+
+#To delete a user you can run 
+kubectl config delete-user clusterUser_ResourceGroupName_ClusterName
+
+#To remove a cluster, you can run 
+kubectl config delete-cluster ClusterName
+
+#To remove a context, you can run 
+kubectl config delete-context ClusterName
+ 
+#To check the user in kubeconfig file
+kubectl config get-users 
+
+#To check the context in kubeconfig file
+kubectl config get-contexts
+
+#To check the cluster in kubeconfig file
+kubectl config get-clusters
+
+#to get the current cluster information
+kubectl cluster-info
+
+#disable monetring /insight in kubernates
+az aks disable-addons -a monitoring -n cluster-name -g resource-group-name
+
+#use kubernates cluster
+az aks get-credentials --resource-group ResourceGrouName --name ClusterName --overwrite-existing
+
+#bypass and Override AD Authentication
+az aks get-credentials --resource-group ResourceGrouName --name ClusterName --admin
+
+#describe hpa in deployment
+kubectl describe hpa/hpaDeploymentName
+
+# List Node Pools
+az aks nodepool list --cluster-name ClusterName --resource-group ResourceGrouName -o table
+
+# List which pods are running in system nodepool from kube-system namespace
+kubectl get pod -o=custom-columns=NODE-NAME:.spec.nodeName,POD-NAME:.metadata.name -n kube-system
+
+#check az version 
+az version
+
+#upgrade az version (not work in azure-cli)
+az upgarde
+
+# Create New Linux Node Pool 
+az aks nodepool add --resource-group AKS_RESOURCE_GROUP \
+                    --cluster-name AKS_CLUSTER_NAME \
+                    --name Name_Of_Node \
+                    --node-count 1 \
+                    --enable-cluster-autoscaler \
+                    --max-count 5 \
+                    --min-count 1 \
+                    --mode User \
+                    --node-vm-size Standard_DS2_v2 \
+                    --os-type Linux \
+                    --labels nodepool-type=user environment=production nodepoolos=linux app=java-apps \
+					--zones {1,2,3}
+                    --tags nodepool-type=user environment=production nodepoolos=linux app=java-apps<--------
+																											|
+# List Node Pools																							|	
+az aks nodepool list --cluster-name ${AKS_CLUSTER} --resource-group ${AKS_RESOURCE_GROUP} -o table			|	
+																											|	
+# List Nodes using Labels where nodepoolos=linux where -l stands for label									|	
+kubectl get nodes -o wide -l nodepoolos=linux																|		
+																											|
+# List Nodes using Labels where app=jaba-apps where -l stands for label										|		
+kubectl get nodes -o wide -l app=java-apps																	|	
+																											|
+# To schedule pods on based on NodeSelectors																|			
+      nodeSelector:	(under the pod-->template-->spec-->nodeSelector section in yaml)																						|	
+        app: java-apps<-------------------------------------------------------------------------------------			
+
+#To set subscription in multiple subscription
+az account set --subscription d2e44caa-1265-4fc3-bdaf-dc76a0a5d08e
+
+#to show the accont list or subscription 
+az account lit
+
+#register feature az-cli by command in cloud shell
+az feature register --namespace Microsoft.ContainerService -n AutoUpgradePreview
+
+#command to check ingress route file in k8s
+kubectl get ingress
+
+#command to check routing model in ingress
+kubectl describe ingress <ingress-route-name>
+---------------------TERRAFORM IMPLEMENTATION----------------------------------------
+
+#install and download terraform
+down the zip file from the website terraform.io
+wget http://releases.hashicorp.com/terraform/0.15.4/terraform_0.15.4_linux_amd64.zip
+
+#unzip the tar
+unzip terraform_0.15.4_linux_amd64.zip
+
+#Give permission to folder
+chmod -x terraform
+
+#move to path variable
+sudo mv terraform /usr/local/bin
+
+#check with command
+terraform version
+
+#creating ssh key/certificates in windows
+NOTE : for remote host always must give public key only not private 
+-download putty
+-open puttygen
+-generate ssh key pair
+-saved the private and public key in any loaction
+-public_key save as .pub and private_key save as .ppk
+-conversation(menu)-->export openSSH key -->save as .pem file 
+
+#terraform intialize the plugins and all prerequiste like providers aws,azure,gcp etc.
+terraform init
+
+#order of the execution of command standard
+terraform refresh-->plan--make decision-->apply
+
+#terraform always read .tf file 
+-create file main.tf
+-define variable in terraform file variables.tf
+--variable "name"{
+  type = "datatype of variable"
+  default = "value of variable"
+  }
+--variable "test"{
+  type = "string"
+  default = "sawan"
+  }
+
+#move to terraform console
+terraform console
+
+#access or read variable value
+-var.<var name> or "${var.var_name}"
+-var.test or "${var.test}"
+-o/p sawan
+
+#terraform have diffrent types of variable like Map{key,vale},Boolean,number,list[],set,object,tuple
+variable "test-string"{
+  type = "string"
+  }
+
+variable "test-int"{
+  type = number
+  }
+
+variable "test-boolean"{
+  type = bool
+  }
+  
+variable "test-list"{
+  type = list(number)
+  default = [1,2,3]
+  }
+  
+variable "test-map"{
+  type = map(string)
+  default ={ "key" = "value"}
+  }
+
+#Set have no sort by terraform during output and only unique value return in result
+variable "test-set"{
+  type =set(number)
+  default=[4,5,7,8,2]
+  }
+
+#object is like a map but each element have different type
+variable "test-object"{
+  name = "sawan"
+  empid = 1820387
+}
+
+#tuple is like list each element have different types
+variable "test-tuple"{
+  type = tuple
+  default = [1,"string",false]
+  }
+
+#Terraform can also decide the type of variable during run time
+
+#terraform commands documentation
+http://www.terraform.io/docs/cli/commands/validate.html
+
+This command is used to get full list of Command used in terraform
+-terraform help
+
+This command will read all *.tf files and apply the terraform code to cloud provider that you have configured
+Terraform output the changes after this command and ask for make the chnages.
+The user output will be 'yes' 
+-terraform apply 
+
+we can use -auto-approve argument to automatically approve the changes without asking 
+-terraform apply -auto-approve
+
+This command used to see what changes terroform would do without applying it and show execution plan.
+-terraform plan
+
+This command used to store the plan in file for further implementaion
+- terraform plan -out <plan name>
+
+This command used to run when you add new module or provider or first time you want to use terraform within a project directory
+It help to intialize terraform project and download neccessary plugin and install it
+-terraform init
+
+This command used to remove all infrastructure you created 
+-terraform destroy
+
+This command used to single resource of file terraform
+-terraform destroy -target RESOURCE_TYPE.NAME -target RESOURCE_TYPE2.NAME
+
+This command used 
+-terraform state list
+
+#azure provide for infrastructure is 'azurerm' plugin
+1. Create Resource group in azure main.tf
+provider "azurerm"{
+  version = "=1.35.0"
+  }
+#create a resource group
+resource "azurerm_resource_group" "demo<terraform_resrc_group>"{
+  name = "first-step-demo<for azure_resource_group>"
+  location = var.loaction<defined in var.tf file>
+  }
+  
+#command to validate to terraform template
+terraform validate
+
+#command used to refresh the state of the terraform against the real cloud resources
+terraform refresh
+
+#when terraform refresh the state file it will create the terrform backup file 
+
+#diff command used to different between old and new file state
+diff terraform.tfstate.backup terraform.tfstate
+
+#it gives you details about terraform provider using current
+terraform providers
+
+#This command to use check terraform output
+terraform output
+
+#This command to use check terraform output for specific resource
+terraform output variable_name
+
+#destroy specific resource by  terraform
+terraform destroy target=CloudProvider_ResourceTemplateName.ResourceName
+terraform destroy target=azurerm_resource_group.resource-group-name
+
+#this file is used to load value by default in plan time read first this file only
+terraform.tfvars(execute automatically)
+e.g location = "eastus"
+
+#pass file name by others .tfvar to apply on ru time
+terraform plan -var-file filename.tfvars
+
+#Automatically load variables values in run time with terraform.tfvars
+used file name <filename.auto.tfvars>
+
+#combine two variable value as single value
+ex. resource-group-name=aks-sawan & environment-name=dev
+name = "${var.resource-group-name}-${var.environment-name}"
+o/p : name = "aks-sawan-dev"
+
+# Terraform State file  Storage to Azure Storage Container
+  backend "azurerm" {
+    resource_group_name   = "terraform-storage-rg"
+    storage_account_name  = "terraformstatexlrwdrzs"
+    container_name        = "tfstatefiles"
+    key                   = "terraform.tfstate"
+  }  
+}
+
+
+#switch and active namespace
+kubens <namespace>
+kubens production
+=====================HeLM commands================================
+
+#Install an app:
+helm install [app-name] [chart]
+
+#Install an app in a specific namespace:
+helm install [app-name] [chart] --namespace [namespace]
+
+#Override the default values with those specified in a file of your choice:
+helm install [app-name] [chart] --values [yaml-file/url]
+
+#Run a test installation to validate and verify the chart:
+helm install [app-name] --dry-run --debug
+
+#UnInstall an app:
+helm uninstall [app-namechart]
+
+#Uninstall a release:
+helm uninstall [release]
+
+#pgrade an app:
+helm upgrade [release] [chart]
+
+#Instruct Helm to rollback changes if the upgrade fails:
+helm upgrade [release] [chart] --atomic
+
+#Upgrade a release. If it does not exist on the system, install it:
+helm upgrade [release] [chart] --install
+
+#Upgrade to a specified version:
+helm upgrade [release] [chart] --version [version-number]
+
+#Roll back a release:
+helm rollback [release] [revision]
+
+#Download all the release information:
+helm get all [release]
+
+#Download all hooks:
+helm get hooks [release]
+
+#Download the manifest:
+helm get manifest [release]
+
+#Download the notes:
+helm get notes [release]
+
+#Download the values file:
+helm get values [release]
+
+#Fetch release history:
+helm history [release] 
+
+#Add a repository from the internet:
+helm repo add [repository-name] [url]
+
+#Remove a repository from your system:
+helm repo remove [repository-name]
+
+Update repositories:
+helm repo update
+
+#List chart repositories:
+helm repo list
+
+#Generate an index file containing charts found in the current directory:
+helm repo index
+
+#Search charts for a keyword:
+helm search [keyword]
+
+#Search repositories for a keyword:
+helm search repo [keyword]
+
+#Search Helm Hub:
+helm search hub [keyword]
+
+#List all available releases in the current namespace:
+helm list
+
+#List all available releases across all namespaces:
+helm list --all-namespaces
+
+#List all releases in a specific namespace:
+helm list --namespace [namespace]
+
+#List all releases in a specific output format:
+helm list --output [format]
+
+#Apply a filter to the list of releases using regular expressions:
+helm list --filter '[expression]'
+
+#See the status of a specific release:
+helm status [release]
+
+#Display the release history:
+helm history [release]
+
+#See information about the Helm client environment:
+helm env
+
+#Install plugins:
+helm plugin install [path/url1] [path/url2] ...
+
+#View a list of all installed plugins:
+helm plugin list
+
+#Update plugins:
+helm plugin update [plugin1] [plugin2] ...
+
+#Uninstall a plugin:
+helm plugin uninstall [plugin]
+
+#Create a directory containing the common chart files and directories (chart.yaml, values.yaml, charts/ and templates/):
+helm create [name]
+
+#Package a chart into a chart archive:
+helm package [chart-path]
+
+#Run tests to examine a chart and identify possible issues:
+helm lint [chart]
+
+#Inspect a chart and list its contents:
+helm show all [chart] 
+
+#Display the chart’s definition:
+helm show chart [chart] 
+
+#Display the chart’s values:
+helm show values [chart]
+
+#Download a chart:
+helm pull [chart]
+
+#Download a chart and extract the archive’s contents into a directory:
+helm pull [chart] --untar --untardir [directory]
+
+#Display a list of a chart’s dependencies:
+helm dependency list [chart]
+
+#Display the general help output for Helm:
+helm --help
+
+#Show help for a particular helm command:
+helm [command] --help
+
+#See the installed version of Helm:
+helm version
+===================APM server setup===============================
+helm repo add elastic http://helm.elastic.co
+helm install elasticsearch --version 7.15.0 elastic/elasticsearch --set replicas=3
+helm install kibana --version 7.15.0 elastic/kibana --set service.type="LoadBalancer"
+helm install apm-server elastic/apm-server
+
+helm uninstall elasticsearch
+helm uninstall kibana
+helm uninstall apm-server
+
+#Content for Dockerfile file
+--------------------------------------------------------------------
+FROM openjdk:11-jre-slim
+
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+
+ENV TZ UTC
+
+# Set Omnistore Home
+ENV OMNISTORE_HOME /opt/omnistore-home
+COPY omnistore-ms-pricing-services-0.0.1-SNAPSHOT.jar /usr/local
+COPY elastic-apm-agent-1.26.0.jar /usr/local
+COPY application.properties /usr/local
+COPY bootstrap.properties /usr/local
+COPY setenv.sh /usr/bin
+ADD omnistore-home /opt/omnistore-home/
+
+RUN ["chmod", "+x", "/usr/bin/setenv.sh"]
+
+ENTRYPOINT ["/bin/bash", "-c", "/usr/bin/setenv.sh"]
+
+CMD ["TRUE"]
+------------------------------------------------------------------------
+#content for setenv.sh file
+java -javaagent:/usr/local/elastic-apm-agent-1.26.0.jar $JVM_OPTIONS -Delastic.apm.application_packages=com.tcs -Delastic.apm.service_name=omnistore-salereturn -Delastic.apm.server_urls=http://apm-server-apm-server:8200 -DOMNISTORE_HOME=$OMNISTORE_HOME -jar /usr/local/omnistore-ms-pricing-services-0.0.1-SNAPSHOT.jar --spring.config.location=/usr/local/application.properties,/usr/local/bootstrap.properties
+
+-----------------------Azure cli Az storage account Queue---------------------
+#To create a Queue:
+az storage queue create --name Qname --account-name myAcc --account-key Mykey.
+
+#To delete the existing Queue:
+az storage queue delete --name Qname --account-name Myacc --account-key Acckey 
+
+#To put a message in a Queue:
+az storage message put --content mymessage --queue-name qname 
+
+#To get a message in Queue:
+az storage message get --queue-name Qname
+
+#To retrieve one or more messages from the front of the queue:
+az storage message peek --queue-name Qname.
+
+-----------------------Azure cli Az storage account Table---------------------
+#To create a table:
+az storage table create --name sawan --account-name sawan --access-key VtYxwhnyjLaRrpMQFEGAamXxxycwm2rWBWgdEjIVvKjiGEjI6zbQad6CBzvVwwIOStlSKsssTJ6rHeZtcx+0tQ==
+
+#To delete a table:
+az storage table delete --name tablename --account-name Accname --access-key Acckey
+
+#To insert a storage entity into a table:
+az storage entity insert --connection-string DefaultEndpointsProtocol=http;AccountName=sawan;AccountKey=VtYxwhnyjLaRrpMQFEGAamXxxycwm2rWBWgdEjIVvKjiGEjI6zbQad6CBzvVwwIOStlSKsssTJ6rHeZtcx+0tQ==;EndpointSuffix=core.windows.net --entity PartitionKey=AAA RowKey=BBB Content=ASDF2 --table-name sawan
+
+#To update an existing entity:
+az storage entity merge --entity PartitionKey=AAA RowKey=BBB Content=ASDF2 --table-name tableName --account-key accKey --account-name accountName --connection-string $connectionString
+
+#To delete an entity:
+az storage entity delete --partition-key KEY --row-key RKEY --table-name TName.
+
+#To read an entity:
+az storage entity show --table-name MyTable --partition-key KEY --row-key RKEY
+
+#To query entities:
+az storage entity query -t MyTable --filter "PartitionKey eq 'AAA'"
+
+#create a generic secret for test environment credentials 
+kubectl create secret generic <secret_name> --from-literal=<env_varible_name1>=<value1> --from-literal=<env_varible_name2>=<value2>
+kubectl create secret generic test-db-secret --from-literal=username=testuser --from-literal=password=iluvtests
+
+#Using Secrets as environment variables 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-env-pod
+spec:
+  containers:
+  - name: mycontainer
+    image: redis
+    env:
+      - name: SECRET_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: test-db-secret
+            key: username
+      - name: SECRET_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: test-db-secret
+            key: password
+
+#mount cloudrive in azure cli
+note : storage account should be same region for multiple storage acount mount in cloud shell
+clouddrive mount -s <subscription_name> -g <resource-group-name> -n <storage_account_name> -f <file_share_name>
+clouddrive mount -s Omnistore-Demo -g osmshnm -n osmshnm -f osmshnm
+
+#remove existing cloud storage account
+clouddrive unmount
+
+#to see mount storage account
+df
+
+ 
+#deployment by ARM template in azure CLI
+az deployment group create --resource-group <name_of_resource_group> --template-file <path_of_template.json file> --parameters <path_of_parameter.json>
+az deployment group create --resource-group cromaread --template-file template.json --parameters '@parameters.json'
+
+#deployment by ARM template in azure powershell
+New-AzResourceGroupDeployment ResourceGrouName app-grp -TemplateFile template01.json -TemplateParameterFile parameters.json
+
+#Azure diagram icons
+http://docs.microsoft.com/en-us/azure/architecture/icons/
+
+#set kubectl as windows command and add this path to path variable of your account
+C:\Users\1820387\.azure-kubectl
+
+#CIDR calculator
+http://www.ipaddressguide.com/cidr
+
+#to watch network topology of network
+search Network Watcher in portal 
+
+
+#active directory (azure AD) 
+tenant(also called directory)---->subscription(more than one possible)
+
+#azure (AD connect) with on-prem data directory with single user base 
+on-primesis AD<------------>Azure AD /MS apps<----user/device sign in
+
+#azure archietecture centre
+http://docs.microsoft.com/en-us/azure/architecture/
+
+
+#Create a firewall rule on Azure Database for MySQL Server
+az mysql server firewall-rule create --resource-group myresourcegroup --server-name mydemoserver --name FirewallRule1 --start-ip-address 1.1.1.1 --end-ip-address 1.1.1.1
+
+#public domain name server in azure
+1. craete DNS zones
+2. buy a domain from third party services
+3. register the azure DNS server Name server in Domain service register name server(for domain buy godaddy.com)
+4. add record with web server Ip in DNS zone
+5. add inbound rule for Port 80 for web server (VM)
+
+#ssl self signed certificate for IP-Address
+1. Create a request configuration file as follows (this is just a plain text file — and you can name it whatever you like)
+   file-name = certificate.cnf
+	[req]
+	default_bits = 4096
+	default_md = sha256
+	distinguished_name = req_distinguished_name
+	x509_extensions = v3_req
+	prompt = no
+	
+	[req_distinguished_name]
+	C = US
+	ST = VA
+	L = SomeCity
+	O = MyCompany
+	OU = MyDivision
+	CN = 192.168.13.10
+	
+	[v3_req]
+	keyUsage = keyEncipherment, dataEncipherment
+	extendedKeyUsage = serverAuth
+	subjectAltName = @alt_names
+	
+	[alt_names]
+	IP.1 = 192.168.13.10
+
+2.Generate the certificate and private key using the config file you created above
+	openssl req -new -nodes -x509 -days 365 -keyout domain.key -out domain.crt -config certificate.cnf
+
+3.Verify the certificate has an IP SAN by running the following command
+	openssl x509 -in domain.crt -noout -text
+
+4.This will output the contents of the cert for you to inspect. 
+  While there is a lot there, you are looking for a couple lines like this:
+	X509v3 Subject Alternative Name:
+	IP Address:192.168.13.10
+
+#push images to ACR by az command
+az acr build --image omnistoreimages.azurecr.io/omnisalenew:example --registry omnistoreimages --file Dockerfile .
+az acr build --image osmlbpsaas.azurecr.io/omnistore-ui-services:example --registry osmlbpsaas --file Dockerfile .
+
+#create vm sql server for data by select sql server image 
+ls
+
+chmod 400 my-sql-server-vm_key.pem
+ssh -i my-sql-server-vm_key.pem azureuser@13.78.236.186
+ 
+ls /opt/mssql/bin
+ 
+sudo /opt/mssql/bin/mssql-conf set-sa-password
+ 
+sudo systemctl stop mssql-server
+sudo systemctl start mssql-server
+ 
+cd /opt/mssql-tools/bin
+./sqlcmd -S localhost -U SA -p
+
+#generate output yaml from deployment
+kubectl get deploy/svc/hpa/configmap/pvc/etc -o yaml > filename.yaml
+ 
+#databricks demo 
+1.Create databricks infrastructure
+
+2.Sigin into workspace
+
+3.Create cluster
+
+4.Create notebook(language/cluster)
+
+5.Read data from resource
+
+6.Run the query in Notebook 
+
+7.Analyze the result
+
+8.WASB stands for Windows Azure Blob storage 
+This is the protocol that can be used by Azure Databricks to access Azure Blob storage
+
+9.Create a mount point onto the storage account
+
+10.<conf-key> can be either fs.azure.account.key.<storage-account-name>.blob.core.windows.net 
+or fs.azure.sas.<container-name>.<storage-account-name>.blob.core.windows.net
+
+11.Databricks Utilities are underlying libraries that allow you to perform a variety of tasks
+
+12.These are available for Python, R, and Scala notebooks
+dbutils.fs.mount(
+  source = "wasbs://data@datastore40000.blob.core.windows.net",
+  mount_point = "/mnt/myfiles",
+  extra_configs = {"fs.azure.account.key.datastore40000.blob.core.windows.net": "hJp89RB5jtkgAqEnvEZZ51dc0Lfbf/hWxeq27ndWwWTegTaD0il7eOkDY8/WYUQAE3Z3TRn2EffdErpwqnG4+w=="})   
+
+13.See the files in the mount
+   display(dbutils.fs.ls("/mnt/myfiles"))
+
+14.Read the csv file into a data frame
+   df=(spark.read.csv("/mnt/myfiles/Logdata.csv"))
+   
+15.Display the data frame
+   display(df)
+
+#Data Analytics
+The different activities in data analytics
+
+1.Descriptive Analysis – This helps to answer questions on what happened. This can be done based on historical data.
+  This technique can be used to summarize large datasets to describe outcomes to stakeholders.
+  Here you can use KPI – Key Performance indicators.
+  These can be used to track the success of failure of key objectives.
+
+2.Diagnostics Analysis – This helps to answers questions on why it happened.
+  Trying to identify anomalies in data.
+  Try to dig deeper into the root cause of the issue.
+
+3.Predictive Analysis – This helps to answer questions on what can happen in the future. 
+  This is helpful for business to make decisions about the future.
+
+4.Prescriptive Analysis – This can help to answer questions on what actions can be taken to achieve a goal or target.
+
+5.Cognitive Analysis – This is where you try to analyze the current situation based on the data you have. 
+  If you have learnt anything new, then that is added to the data set that you already have.
+
+#Data ingestion and processing
+Companies normally want to analyze data that is available via their entire application landscape.
+
+For example, they want to get a better idea on what customers want when they visit their website.
+
+Normally a lot of the data would initially be in raw format.
+
+And then the data needs to be transformed into a more meaningful form for analysis.
+
+1.Wrangling – This is the process of transformation of raw data into a more use format for analysis.
+  This normally involves writing code that would be used to filter, clean, combine and aggregate data from various sources.
+  
+#When considering transformation and processing, there are two approaches.
+1.ETL – Extract, Transform and Load
+  Here the data is retrieved, transformed and then saved onto the destination.
+  This process can be used for basic data cleaning tasks, reformatting of data wherever required.
+  Here you can filter on data before it is load onto the destination.
+
+2.ELT – Extract, Load and Transform
+  Here the data is transformed after it is loaded into the destination.
+  This is normally used for more complex models and when periodic batch processing is desired.
+
+#Common tool in Azure – 
+1.Azure Data Factory
+
+2.Azure Synapse Analytics
+  You can use this service to host your data warehouse.
+  You can also perform Big Data Analytics using this service.
+  When it comes to allocating resources, they are allocated via DWU’s.
+  These are Data Warehouse Units – This unit is a combination of CPU, Memory and IO.
+  When you allocate the required resources to the Synapse resource, you choose the amount of DWU’s you want to allocate.
+  The storage for the data warehouse is allocated separately.
+  For Gen2 , for columnstore tables, you get unlimited storage. The storage is allocated automatically.
+  You also have the ability to pause and resume the Synapse pool which hosts your data warehouse.
+
+#Batch Processing
+ Here data is collected over a period of time.
+ The data is then processed as a batch job.
+ For example , for an e-commerce application, all of the purchases that were carried out during the day will be collected.
+ That data will then be submitted to a batch processing system.
+ That system will then process the data in the night.
+ The data is then stored in the analytical system
+
+#Advantages of batch processing
+1.You can process large volumes of data at a time.
+2.The jobs can run in the night during non-peak hours.
+
+#Disadvantages of batch processing
+1.There is a delay before you get the results.
+2.The batch job that processes the results could take hours to complete.
+3.If the batch job fails for any reason, you don’t get the data in the end. You could end up in partial data in the analytical system.
+4.You might need to delete the data in the analytical system and then run the batch job again.
+
+#Lab - AzCopy Tool - Resources
+#To create a container
+azcopy make "https://appstore4040.blob.core.windows.net/tmp?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+#To upload a file
+azcopy copy storage1.arm.json "https://appstore4040.blob.core.windows.net/tmp/storage1.arm.json?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+#To upload a directory
+azcopy copy "newdir/*" "https://appstore4040.blob.core.windows.net/tmp?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+#To upload a directory to a directory in the container
+azcopy copy "newdir/*" "https://appstore4040.blob.core.windows.net/tmp/newdir?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+#To upload a directory and subdirectories to a directory in the container
+azcopy copy "newdir/*" "https://appstore4040.blob.core.windows.net/tmp/newdir?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D" --recursive
+
+#Download blob data
+azcopy copy "https://appstore4040.blob.core.windows.net/tmp/storage1.arm.json?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D" "storage1.arm.json"
+
+#copy data between two storage accounts
+azcopy copy "https://appstore4040.blob.core.windows.net/tmp?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D" "https://azcopydestination100034.blob.core.windows.net/tmp?sv=2020-02-10&ss=b&srt=sco&sp=rwlac&se=2021-04-12T22:26:24Z&st=2021-04-12T14:26:24Z&spr=https&sig=TMv5LmpR0RKwpg%2B8F19Q1aLNlKUyn36%2B0B5qqu5fGok%3D" --recursive
+
+#remove folder from command 
+azcopy remove "http://csb1003200094f9c116.file.core.windows.net/cs-1820387-tcs-com-1003200094f9c116/croma/omnistore-home/logs/os-pos-services?sv=2020-10-02&se=2022-03-11T05%3A40%3A29Z&sr=s&sp=rwdl&sig=YcX%2Fpi%2B%2BRy%2B1kJultV88pHgfnfr1UoxzOmJPeb07VAw%3D" --recursive --log-level=INFO;
+./azcopy.exe remove "http://csb1003200094f9c116.file.core.windows.net/cs-1820387-tcs-com-1003200094f9c116/croma/omnistore-home/logs/os-pos-services?sv=2020-10-02&se=2022-03-11T05%3A40%3A29Z&sr=s&sp=rwdl&sig=YcX%2Fpi%2B%2BRy%2B1kJultV88pHgfnfr1UoxzOmJPeb07VAw%3D" --from-to=FileTrash --recursive --log-level=INFO;
+
+#upload file in azure fileshare by azcopy
+azcopy copy "<file name>" "<storage_account_name>/<file_share_name>?<SAS token> --recursive"
+azcopy copy "ga.sql" "http://csb1003200094f9c116.file.core.windows.net/cs-1820387-tcs-com-1003200094f9c116?sv=2020-08-04&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2021-11-26T23:05:25Z&st=2021-11-26T15:05:25Z&spr=http&sig=mnWC6DQfqHvUUqT%2FwLKJLFQHjt%2FgKPPoLCWfVaeiOsM%3D"
+
+#download file from azure fileshare by az copy
+azcopy copy "<storage_account_name>/<file_share_name>/<file-path>?<SAS token>" "<local_path> --recursive"
+azcopy copy "http://csb1003200094f9c116.file.core.windows.net/cs-1820387-tcs-com-1003200094f9c116/ga.sql?sv=2020-08-04&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2021-11-26T23:05:25Z&st=2021-11-26T15:05:25Z&spr=http&sig=mnWC6DQfqHvUUqT%2FwLKJLFQHjt%2FgKPPoLCWfVaeiOsM%3D" "C:\Users\1820387\Desktop\azure-tcs\SAAS\ga.sql"
+
+#upload contents,file,directory in blob storage
+az storage blob upload-batch -s C:\Users\1820387\Desktop\azure-tcs\HnM\UI -d $web --connection-string=DefaultEndpointsProtocol=http;AccountName=osmshnm;AccountKey=ijCUgD28VVaQYVijUASh1MD40f/xBLv7el7/qU/IOpndrYG3mH828YCxRZFOKgSPSoVVP79dKeCasI/ANZuDmA==;EndpointSuffix=core.windows.net
+az storage blob upload-batch -s C:\Users\1820387\Desktop\azure-tcs\SAAS\01-docker-Images\os-ui-services\omnistore-ec -d omnistore-ec --connection-string=DefaultEndpointsProtocol=http;AccountName=retailomnistore;AccountKey=9o2PRt2dFcyOfJMoxoYPNixfKybvxVHuxUWgMyV7n4aL1YEjthYuQfr6Gy1NR7U+rYP5NoeW1HpR0mKw4AlgAw==;EndpointSuffix=core.windows.net
+
+#delete content from blob storage
+az storage blob delete-batch -s $web\omnistore-pos-ms --connection-string=DefaultEndpointsProtocol=http;AccountName=osmshnm;AccountKey=ijCUgD28VVaQYVijUASh1MD40f/xBLv7el7/qU/IOpndrYG3mH828YCxRZFOKgSPSoVVP79dKeCasI/ANZuDmA==;EndpointSuffix=core.windows.net 
+
+#Log Analytics Queries
+#This can be used for search for a keyword in the event table
+Event | search "demovm"
+
+#This can used to pick up 5 events taken in no specific order
+Event | top 10 by TimeGenerated
+
+#This is used to filter based on a particular property of an event
+Event | where EventLevel == 4
+
+#This can be used to check for the events generated in the previous 5 minutes
+Event | where TimeGenerated > ago(5m)
+
+#This can be used to project certain properties
+Event | where TimeGenerated > ago(5m) | project EventLog, Computer
+
+#Here you can summarize the events
+Event |  where TimeGenerated > ago(1d) | summarize count() by Computer,Source
+
+#Here you can render a bar chart based on the data
+Event |  where TimeGenerated > ago(1d) | summarize count() by Computer,Source | render barchart
+
+#Enable custom log in log Analytics workspace for Vm
+custom log-->access.log(demo file)-->location of log file-->connect VM to workspace
+
+#powershell command 
+#to check all services running 
+Get-Service
+
+#to check service name with specific string "App"
+Get-Service -Name "App*"
+
+#to check service "running" with status
+Get-Service -Name "App*"| Where-Object {$_.Status -eq "Running"}
+
+#to run az cli command we can use file script .azcli extension
+
+#ARM template
+https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/syntax
+
+#ARM template format
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "",
+  "apiProfile": "",
+  "parameters": {  },
+  "variables": {  },
+  "functions": [  ],
+  "resources": [  ],
+  "outputs": {  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
